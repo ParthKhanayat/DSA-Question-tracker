@@ -49,6 +49,7 @@ function App() {
         id: q.question_id,
         name: q.name,
         lastSolvedDate: q.last_solved_date,
+        difficulty: q.difficulty,
         db_id: q.id // Keep the serial/uuid from db just in case
       }));
       setQuestions(formatted);

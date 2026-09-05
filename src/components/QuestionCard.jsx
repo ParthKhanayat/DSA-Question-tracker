@@ -2,11 +2,13 @@ import React from 'react';
 import { format, differenceInDays } from 'date-fns';
 import { RefreshCw } from 'lucide-react';
 import { getFreshnessCategory } from '../utils/freshness';
+import { getQuestionDifficulty } from '../utils/difficulty';
 
 export const QuestionCard = ({ item, onPing }) => {
   const categoryId = getFreshnessCategory(item.lastSolvedDate);
   const solvedDate = new Date(item.lastSolvedDate);
   const diffDays = differenceInDays(new Date(), solvedDate);
+  const diffInfo = getQuestionDifficulty(item);
   
   const handlePing = () => {
     // Set custom ping date to today easily, but we can also use custom date logic outside.
@@ -16,8 +18,13 @@ export const QuestionCard = ({ item, onPing }) => {
 
   return (
     <div className={`glass-panel question-card card-${categoryId}`}>
-      <div className="flex-between">
+      <div className="card-header flex-between">
         <h3 className="card-title" title={item.name}>{item.name}</h3>
+        {diffInfo && (
+          <span className={`difficulty-badge diff-${diffInfo.level}`}>
+            {diffInfo.label}
+          </span>
+        )}
       </div>
       <div className="card-meta">
         <div>Solved: {format(solvedDate, 'MMM d, yyyy')}</div>

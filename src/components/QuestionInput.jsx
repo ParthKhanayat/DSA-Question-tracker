@@ -43,6 +43,7 @@ export const QuestionInput = ({ onAdd }) => {
     onAdd({
       id: questionObj ? `lc-${questionObj.id}` : `custom-${Date.now()}`,
       name: questionObj ? `${questionObj.id}. ${questionObj.title}` : query.trim(),
+      difficulty: questionObj ? questionObj.difficulty : null,
       lastSolvedDate: dateToUse,
       addedAt: new Date().toISOString()
     });
