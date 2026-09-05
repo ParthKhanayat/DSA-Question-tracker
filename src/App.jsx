@@ -124,6 +124,20 @@ function App() {
     }
   };
 
+  const handleDeleteQuestion = async (id) => {
+    setQuestions(prev => prev.filter(q => q.id !== id));
+
+    try {
+      await supabase
+        .from('questions')
+        .delete()
+        .eq('user_id', session.user.id)
+        .eq('question_id', id);
+    } catch (error) {
+      console.error('Error deleting question:', error.message);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
@@ -152,6 +166,7 @@ function App() {
         <QuestionList 
           questions={questions} 
           onPing={handlePingQuestion} 
+          onDelete={handleDeleteQuestion}
         />
       </main>
     </div>

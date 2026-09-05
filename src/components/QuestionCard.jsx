@@ -1,10 +1,10 @@
 import React from 'react';
 import { format, differenceInDays } from 'date-fns';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Trash2 } from 'lucide-react';
 import { getFreshnessCategory } from '../utils/freshness';
 import { getQuestionDifficulty } from '../utils/difficulty';
 
-export const QuestionCard = ({ item, onPing }) => {
+export const QuestionCard = ({ item, onPing, onDelete }) => {
   const categoryId = getFreshnessCategory(item.lastSolvedDate);
   const solvedDate = new Date(item.lastSolvedDate);
   const diffDays = differenceInDays(new Date(), solvedDate);
@@ -14,6 +14,12 @@ export const QuestionCard = ({ item, onPing }) => {
     // Set custom ping date to today easily, but we can also use custom date logic outside.
     // For simplicity, ping just means "I solved it today"
     onPing(item.id, new Date().toISOString());
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this question?")) {
+      onDelete(item.id);
+    }
   };
 
   return (
@@ -30,10 +36,15 @@ export const QuestionCard = ({ item, onPing }) => {
         <div>Solved: {format(solvedDate, 'MMM d, yyyy')}</div>
         <div>{diffDays === 0 ? 'Today' : `${diffDays} day${diffDays === 1 ? '' : 's'} ago`}</div>
       </div>
-      <button className="ping-btn" onClick={handlePing}>
-        <RefreshCw size={16} />
-        Ping (Revise)
-      </button>
+      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+        <button className="ping-btn" onClick={handlePing} style={{ flex: 1 }}>
+          <RefreshCw size={16} />
+          Ping (Revise)
+        </button>
+        <button className="ping-btn" onClick={handleDelete} style={{ background: 'rgba(255, 68, 68, 0.1)', color: '#ff4444', border: '1px solid rgba(255, 68, 68, 0.2)', padding: '8px' }} title="Delete question">
+          <Trash2 size={16} />
+        </button>
+      </div>
     </div>
   );
 };

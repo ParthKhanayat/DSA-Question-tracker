@@ -2,7 +2,7 @@ import React from 'react';
 import { QuestionCard } from './QuestionCard';
 import { getFreshnessCategory, CategoryDetails } from '../utils/freshness';
 
-export const QuestionList = ({ questions, onPing }) => {
+export const QuestionList = ({ questions, onPing, onDelete }) => {
   if (!questions || questions.length === 0) {
     return (
       <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: 40 }}>
@@ -49,7 +49,7 @@ export const QuestionList = ({ questions, onPing }) => {
             </div>
             <div className="grid">
               {items.map(item => (
-                <QuestionCard key={item.id} item={item} onPing={onPing} />
+                <QuestionCard key={item.id} item={item} onPing={onPing} onDelete={onDelete} />
               ))}
             </div>
           </div>
