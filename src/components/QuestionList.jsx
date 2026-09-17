@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { QuestionCard } from './QuestionCard';
 import { getFreshnessCategory, CategoryDetails } from '../utils/freshness';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search } from 'lucide-react';
 
 export const QuestionList = ({ questions, onPing, onDelete }) => {
   const [collapsed, setCollapsed] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   if (!questions || questions.length === 0) {
     return (
@@ -14,6 +15,11 @@ export const QuestionList = ({ questions, onPing, onDelete }) => {
     );
   }
 
+  const filteredQuestions = questions.filter(q => 
+    q.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    q.id.toString().includes(searchQuery)
+  );
+
   // Group questions by freshness
   const grouped = {
     ancient: [],
@@ -22,7 +28,7 @@ export const QuestionList = ({ questions, onPing, onDelete }) => {
     fresh: []
   };
 
-  questions.forEach(q => {
+  filteredQuestions.forEach(q => {
     const cat = getFreshnessCategory(q.lastSolvedDate);
     grouped[cat].push(q);
   });
@@ -45,6 +51,25 @@ export const QuestionList = ({ questions, onPing, onDelete }) => {
 
   return (
     <div>
+      <div style={{ marginBottom: '24px', position: 'relative' }}>
+        <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }}>
+          <Search size={18} />
+        </div>
+        <input
+          type="text"
+          placeholder="Search tracked questions..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ paddingLeft: '40px' }}
+        />
+      </div>
+
+      {filteredQuestions.length === 0 && searchQuery && (
+        <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: 20 }}>
+          No questions match "{searchQuery}"
+        </div>
+      )}
+
       {categoriesOrder.map(catKey => {
         const items = grouped[catKey];
         if (items.length === 0) return null;
