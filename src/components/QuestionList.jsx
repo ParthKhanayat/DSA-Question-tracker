@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { QuestionCard } from './QuestionCard';
+import { SmartRecommendationModal } from './SmartRecommendationModal';
 import { getFreshnessCategory, CategoryDetails } from '../utils/freshness';
-import { ChevronDown, ChevronRight, Search } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search, Sparkles } from 'lucide-react';
 
-export const QuestionList = ({ questions, onPing, onDelete }) => {
+export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }) => {
   const [collapsed, setCollapsed] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [showRecommendationModal, setShowRecommendationModal] = useState(false);
 
   if (!questions || questions.length === 0) {
     return (
@@ -51,18 +53,36 @@ export const QuestionList = ({ questions, onPing, onDelete }) => {
 
   return (
     <div>
-      <div style={{ marginBottom: '24px', position: 'relative' }}>
-        <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }}>
-          <Search size={18} />
+      <div className="flex-between" style={{ marginBottom: '24px', gap: '16px' }}>
+        <div style={{ position: 'relative', flex: 1 }}>
+          <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }}>
+            <Search size={18} />
+          </div>
+          <input
+            type="text"
+            placeholder="Search tracked questions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ paddingLeft: '40px', width: '100%', marginBottom: 0 }}
+          />
         </div>
-        <input
-          type="text"
-          placeholder="Search tracked questions..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ paddingLeft: '40px' }}
-        />
+        <button 
+          onClick={() => setShowRecommendationModal(true)}
+          style={{ background: 'var(--accent)', color: '#000', display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', whiteSpace: 'nowrap' }}
+        >
+          <Sparkles size={18} /> What should I solve?
+        </button>
       </div>
+
+      {showRecommendationModal && (
+        <SmartRecommendationModal 
+          questions={questions} 
+          onClose={() => setShowRecommendationModal(false)}
+          onPing={onPing}
+          onDelete={onDelete}
+          onUpdateDifficulty={onUpdateDifficulty}
+        />
+      )}
 
       {filteredQuestions.length === 0 && searchQuery && (
         <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: 20 }}>
@@ -94,7 +114,7 @@ export const QuestionList = ({ questions, onPing, onDelete }) => {
             {!isCollapsed && (
               <div className="grid">
                 {items.map(item => (
-                  <QuestionCard key={item.id} item={item} onPing={onPing} onDelete={onDelete} />
+                  <QuestionCard key={item.id} item={item} onPing={onPing} onDelete={onDelete} onUpdateDifficulty={onUpdateDifficulty} />
                 ))}
               </div>
             )}

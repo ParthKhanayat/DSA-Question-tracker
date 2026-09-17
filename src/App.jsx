@@ -50,6 +50,8 @@ function App() {
         name: q.name,
         lastSolvedDate: q.last_solved_date,
         difficulty: q.difficulty,
+        personalDifficulty: q.personal_difficulty ?? 5,
+        revisionsCount: q.revisions_count ?? 0,
         db_id: q.id // Keep the serial/uuid from db just in case
       }));
       setQuestions(formatted);
@@ -69,7 +71,7 @@ function App() {
         updated[exists].lastSolvedDate = newQuestion.lastSolvedDate;
         return updated;
       }
-      return [...prev, newQuestion];
+      return [...prev, { ...newQuestion, revisionsCount: 0, personalDifficulty: newQuestion.personalDifficulty || 5 }];
     });
 
     try {
@@ -95,7 +97,9 @@ function App() {
             user_id: session.user.id,
             question_id: newQuestion.id,
             name: newQuestion.name,
-            last_solved_date: newQuestion.lastSolvedDate
+            last_solved_date: newQuestion.lastSolvedDate,
+            personal_difficulty: newQuestion.personalDifficulty || 5,
+            revisions_count: 0
           }]);
       }
     } catch (error) {
@@ -104,11 +108,12 @@ function App() {
     }
   };
 
-  const handlePingQuestion = async (id, newDateStr) => {
+  const handlePingQuestion = async (id, newDateStr, currentRevisions) => {
     // Optimistic update
+    const newRevisions = currentRevisions + 1;
     setQuestions(prev => prev.map(q => {
       if (q.id === id) {
-        return { ...q, lastSolvedDate: newDateStr };
+        return { ...q, lastSolvedDate: newDateStr, revisionsCount: newRevisions };
       }
       return q;
     }));
@@ -116,11 +121,30 @@ function App() {
     try {
       await supabase
         .from('questions')
-        .update({ last_solved_date: newDateStr })
+        .update({ last_solved_date: newDateStr, revisions_count: newRevisions })
         .eq('user_id', session.user.id)
         .eq('question_id', id);
     } catch (error) {
       console.error('Error pinging question:', error.message);
+    }
+  };
+
+  const handleUpdateDifficulty = async (id, newDifficulty) => {
+    setQuestions(prev => prev.map(q => {
+      if (q.id === id) {
+        return { ...q, personalDifficulty: newDifficulty };
+      }
+      return q;
+    }));
+
+    try {
+      await supabase
+        .from('questions')
+        .update({ personal_difficulty: newDifficulty })
+        .eq('user_id', session.user.id)
+        .eq('question_id', id);
+    } catch (error) {
+      console.error('Error updating difficulty:', error.message);
     }
   };
 
@@ -167,6 +191,7 @@ function App() {
           questions={questions} 
           onPing={handlePingQuestion} 
           onDelete={handleDeleteQuestion}
+          onUpdateDifficulty={handleUpdateDifficulty}
         />
       </main>
     </div>

@@ -4,7 +4,7 @@ import { RefreshCw, Trash2 } from 'lucide-react';
 import { getFreshnessCategory } from '../utils/freshness';
 import { getQuestionDifficulty } from '../utils/difficulty';
 
-export const QuestionCard = ({ item, onPing, onDelete }) => {
+export const QuestionCard = ({ item, onPing, onDelete, onUpdateDifficulty }) => {
   const categoryId = getFreshnessCategory(item.lastSolvedDate);
   const solvedDate = new Date(item.lastSolvedDate);
   const diffDays = differenceInDays(new Date(), solvedDate);
@@ -13,7 +13,7 @@ export const QuestionCard = ({ item, onPing, onDelete }) => {
   const handlePing = () => {
     // Set custom ping date to today easily, but we can also use custom date logic outside.
     // For simplicity, ping just means "I solved it today"
-    onPing(item.id, new Date().toISOString());
+    onPing(item.id, new Date().toISOString(), item.revisionsCount || 0);
   };
 
   const handleDelete = () => {
@@ -35,6 +35,21 @@ export const QuestionCard = ({ item, onPing, onDelete }) => {
       <div className="card-meta">
         <div>Solved: {format(solvedDate, 'MMM d, yyyy')}</div>
         <div>{diffDays === 0 ? 'Today' : `${diffDays} day${diffDays === 1 ? '' : 's'} ago`}</div>
+      </div>
+      <div className="card-meta" style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '0.85rem' }}>Difficulty ({item.personalDifficulty || 5}/10):</span>
+          <input 
+            type="range" 
+            min="1" max="10" 
+            value={item.personalDifficulty || 5} 
+            onChange={(e) => onUpdateDifficulty(item.id, parseInt(e.target.value, 10))}
+            style={{ width: '60px', accentColor: 'var(--accent)' }}
+          />
+        </div>
+        <div style={{ fontSize: '0.85rem' }}>
+          Revisions: {item.revisionsCount || 0}
+        </div>
       </div>
       <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
         <button className="ping-btn" onClick={handlePing} style={{ flex: 1 }}>

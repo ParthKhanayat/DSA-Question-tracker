@@ -8,6 +8,7 @@ export const QuestionInput = ({ onAdd }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [customDate, setCustomDate] = useState('');
   const [showCustomDate, setShowCustomDate] = useState(false);
+  const [personalDifficulty, setPersonalDifficulty] = useState(5);
   
   const wrapperRef = useRef(null);
 
@@ -45,6 +46,7 @@ export const QuestionInput = ({ onAdd }) => {
       name: questionObj ? `${questionObj.id}. ${questionObj.title}` : query.trim(),
       difficulty: questionObj ? questionObj.difficulty : null,
       lastSolvedDate: dateToUse,
+      personalDifficulty: personalDifficulty,
       addedAt: new Date().toISOString()
     });
     
@@ -53,6 +55,7 @@ export const QuestionInput = ({ onAdd }) => {
     setShowSuggestions(false);
     setCustomDate('');
     setShowCustomDate(false);
+    setPersonalDifficulty(5);
   };
 
   const handleKeyDown = (e) => {
@@ -123,9 +126,21 @@ export const QuestionInput = ({ onAdd }) => {
           {showCustomDate ? "Use today's date instead" : "Set custom solved date"}
         </span>
         
-        <button onClick={() => query.trim() && handleAdd(null)}>
-          <Plus size={18} /> Add
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '0.85rem' }}>Difficulty ({personalDifficulty}/10):</span>
+            <input 
+              type="range" 
+              min="1" max="10" 
+              value={personalDifficulty} 
+              onChange={(e) => setPersonalDifficulty(parseInt(e.target.value, 10))}
+              style={{ width: '80px', accentColor: 'var(--accent)' }}
+            />
+          </div>
+          <button onClick={() => query.trim() && handleAdd(null)}>
+            <Plus size={18} /> Add
+          </button>
+        </div>
       </div>
     </div>
   );
