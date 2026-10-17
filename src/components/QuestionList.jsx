@@ -7,12 +7,20 @@ import { ChevronDown, ChevronRight, Search, Sparkles } from 'lucide-react';
 export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }) => {
   const categoriesOrder = ['ancient', 'stale', 'slipping', 'fresh'];
   
-  // Requirement 1: By default collapse all categories
-  const [collapsed, setCollapsed] = useState({
-    ancient: true,
-    stale: true,
-    slipping: true,
-    fresh: true
+  // Requirement 1: By default collapse all categories, and remember user toggles during session
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('dsa_collapsed_categories');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return {
+      ancient: true,
+      stale: true,
+      slipping: true,
+      fresh: true
+    };
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [showRecommendationModal, setShowRecommendationModal] = useState(false);
@@ -53,22 +61,36 @@ export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }
   });
 
   const toggleCollapse = (catKey) => {
-    setCollapsed(prev => ({
-      ...prev,
-      [catKey]: !prev[catKey]
-    }));
+    setCollapsed(prev => {
+      const next = {
+        ...prev,
+        [catKey]: !prev[catKey]
+      };
+      try {
+        sessionStorage.setItem('dsa_collapsed_categories', JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
   };
 
   const allCollapsed = categoriesOrder.every(cat => !!collapsed[cat]);
 
   const toggleAll = () => {
     const nextState = !allCollapsed;
-    setCollapsed({
+    const next = {
       ancient: nextState,
       stale: nextState,
       slipping: nextState,
       fresh: nextState
-    });
+    };
+    try {
+      sessionStorage.setItem('dsa_collapsed_categories', JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+    setCollapsed(next);
   };
 
   return (

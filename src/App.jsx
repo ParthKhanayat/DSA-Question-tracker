@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { QuestionInput } from './components/QuestionInput';
 import { QuestionList } from './components/QuestionList';
 import { LeetCodeProgress } from './components/LeetCodeProgress';
@@ -10,38 +10,21 @@ import './index.css';
 function App() {
   const [session, setSession] = useState(null);
   const [questions, setQuestions] = useState([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const currentUserIdRef = useRef(null);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (session) {
-      fetchQuestions();
-    } else {
+  const fetchQuestions = useCallback(async (userId) => {
+    if (!userId) {
       setQuestions([]);
-      setIsLoaded(true);
+      setIsInitialLoading(false);
+      return;
     }
-  }, [session]);
 
-  const fetchQuestions = async () => {
-    setIsLoaded(false);
     try {
       const { data, error } = await supabase
         .from('questions')
         .select('*')
-        .eq('user_id', session.user.id);
+        .eq('user_id', userId);
       
       if (error) throw error;
       
@@ -59,9 +42,48 @@ function App() {
     } catch (error) {
       console.error('Error fetching questions:', error.message);
     } finally {
-      setIsLoaded(true);
+      setIsInitialLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      const userId = session?.user?.id;
+      if (userId) {
+        currentUserIdRef.current = userId;
+        fetchQuestions(userId);
+      } else {
+        setIsInitialLoading(false);
+      }
+    });
+
+    // Auth state subscription (triggered on sign in/out, token refresh, etc.)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+      const newUserId = newSession?.user?.id;
+
+      if (!newUserId) {
+        currentUserIdRef.current = null;
+        setQuestions([]);
+        setIsInitialLoading(false);
+        return;
+      }
+
+      // Only re-fetch if the user actually changed (e.g. login as different user).
+      // Tab switches and window focus fire TOKEN_REFRESHED with the same user ID;
+      // we must NOT re-fetch or reset UI state on those events!
+      if (newUserId !== currentUserIdRef.current) {
+        currentUserIdRef.current = newUserId;
+        fetchQuestions(newUserId);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchQuestions]);
 
   const handleAddQuestion = async (newQuestion) => {
     // Optimistic UI update
@@ -167,7 +189,7 @@ function App() {
     await supabase.auth.signOut();
   };
 
-  if (!isLoaded) return null;
+  if (isInitialLoading) return null;
 
   if (!session) {
     return <Auth onAuthComplete={setSession} />;
