@@ -120,7 +120,7 @@ body {
 /* Top Dashboard - Add Form (Left) & LeetCode Progress (Right) */
 .top-dashboard {
   display: grid;
-  grid-template-columns: 1fr 390px;
+  grid-template-columns: 1fr 415px;
   gap: 20px;
   margin-bottom: 24px;
   align-items: stretch;
@@ -369,37 +369,19 @@ button:disabled {
 
 .lc-donut-container {
   position: relative;
-  width: 96px;
-  height: 96px;
+  width: 114px;
+  height: 114px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.lc-donut-svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.lc-donut-bg {
-  stroke: #1e1e24;
-}
-
-.lc-donut-easy {
-  stroke: #4ade80;
-  transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
-}
-
-.lc-donut-med {
-  stroke: #fbbf24;
-  transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
-}
-
-.lc-donut-hard {
-  stroke: #ef4444;
-  transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
+.lc-sparkle-canvas {
+  width: 114px;
+  height: 114px;
+  display: block;
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.8));
 }
 
 .lc-donut-center {

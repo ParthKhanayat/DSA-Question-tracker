@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { getQuestionDifficulty } from '../utils/difficulty';
+import { SparkleRing } from './SparkleRing';
 import { Code2 } from 'lucide-react';
 
 const TOTAL_EASY = 800;
@@ -38,36 +39,6 @@ export const LeetCodeProgress = ({ questions = [] }) => {
 
   const { easy, med, hard, custom, totalSolved } = stats;
 
-  // Donut chart calculations
-  const radius = 38;
-  const circumference = 2 * Math.PI * radius; // ~238.76
-  const totalDifficultySolved = easy + med + hard;
-
-  // Arc segments based on solved distribution
-  let easyDash = 0;
-  let medDash = 0;
-  let hardDash = 0;
-  let easyOffset = 0;
-  let medOffset = 0;
-  let hardOffset = 0;
-
-  if (totalDifficultySolved > 0) {
-    const gap = totalDifficultySolved > 1 ? 2.5 : 0;
-    const effectiveC = circumference - (gap * ((easy > 0 ? 1 : 0) + (med > 0 ? 1 : 0) + (hard > 0 ? 1 : 0)));
-
-    const easyLen = easy > 0 ? (easy / totalDifficultySolved) * effectiveC : 0;
-    const medLen = med > 0 ? (med / totalDifficultySolved) * effectiveC : 0;
-    const hardLen = hard > 0 ? (hard / totalDifficultySolved) * effectiveC : 0;
-
-    easyDash = easyLen;
-    medDash = medLen;
-    hardDash = hardLen;
-
-    easyOffset = 0;
-    medOffset = -(easyLen + (easy > 0 ? gap : 0));
-    hardOffset = -(easyLen + (easy > 0 ? gap : 0) + medLen + (med > 0 ? gap : 0));
-  }
-
   const easyPct = ((easy / TOTAL_EASY) * 100).toFixed(1);
   const medPct = ((med / TOTAL_MED) * 100).toFixed(1);
   const hardPct = ((hard / TOTAL_HARD) * 100).toFixed(1);
@@ -87,66 +58,11 @@ export const LeetCodeProgress = ({ questions = [] }) => {
       </div>
 
       <div className="lc-progress-body">
-        {/* Left Circular Ring */}
+        {/* Fiery Sparkle Ring */}
         <div className="lc-donut-container">
-          <svg className="lc-donut-svg" viewBox="0 0 100 100">
-            {/* Background track */}
-            <circle
-              cx="50"
-              cy="50"
-              r={radius}
-              className="lc-donut-bg"
-              strokeWidth="7"
-              fill="none"
-            />
+          <SparkleRing easy={easy} med={med} hard={hard} totalSolved={totalSolved} />
 
-            {/* Easy segment */}
-            {easy > 0 && (
-              <circle
-                cx="50"
-                cy="50"
-                r={radius}
-                className="lc-donut-easy"
-                strokeWidth="7"
-                fill="none"
-                strokeDasharray={`${easyDash} ${circumference - easyDash}`}
-                strokeDashoffset={easyOffset}
-                strokeLinecap="round"
-              />
-            )}
-
-            {/* Medium segment */}
-            {med > 0 && (
-              <circle
-                cx="50"
-                cy="50"
-                r={radius}
-                className="lc-donut-med"
-                strokeWidth="7"
-                fill="none"
-                strokeDasharray={`${medDash} ${circumference - medDash}`}
-                strokeDashoffset={medOffset}
-                strokeLinecap="round"
-              />
-            )}
-
-            {/* Hard segment */}
-            {hard > 0 && (
-              <circle
-                cx="50"
-                cy="50"
-                r={radius}
-                className="lc-donut-hard"
-                strokeWidth="7"
-                fill="none"
-                strokeDasharray={`${hardDash} ${circumference - hardDash}`}
-                strokeDashoffset={hardOffset}
-                strokeLinecap="round"
-              />
-            )}
-          </svg>
-
-          {/* Center text in donut */}
+          {/* Center text in fiery sparkle ring */}
           <div className="lc-donut-center">
             <span className="lc-center-count">{totalSolved}</span>
             <span className="lc-center-total">/{TOTAL_CATALOG}</span>
