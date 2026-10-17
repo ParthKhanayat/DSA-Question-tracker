@@ -24,7 +24,7 @@ export const QuestionCard = ({ item, onPing, onDelete, onUpdateDifficulty }) => 
 
   return (
     <div className={`glass-panel question-card card-${categoryId}`}>
-      <div className="card-header flex-between">
+      <div className="card-header">
         <h3 className="card-title" title={item.name}>{item.name}</h3>
         {diffInfo && (
           <span className={`difficulty-badge diff-${diffInfo.level}`}>
@@ -32,32 +32,43 @@ export const QuestionCard = ({ item, onPing, onDelete, onUpdateDifficulty }) => 
           </span>
         )}
       </div>
-      <div className="card-meta">
-        <div>Solved: {format(solvedDate, 'MMM d, yyyy')}</div>
-        <div>{diffDays === 0 ? 'Today' : `${diffDays} day${diffDays === 1 ? '' : 's'} ago`}</div>
+
+      <div className="card-meta-row">
+        <span className="card-date-info">
+          Solved: {format(solvedDate, 'MMM d, yyyy')}
+        </span>
+        <span className="card-relative-time">
+          {diffDays === 0 ? 'Today' : `${diffDays}d ago`}
+        </span>
       </div>
-      <div className="card-meta" style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.85rem' }}>Difficulty ({item.personalDifficulty || 5}/10):</span>
+
+      <div className="card-diff-row">
+        <div className="card-slider-wrap" title={`Personal Difficulty: ${item.personalDifficulty || 5}/10`}>
+          <span className="card-slider-label">Diff: {item.personalDifficulty || 5}/10</span>
           <input 
             type="range" 
             min="1" max="10" 
             value={item.personalDifficulty || 5} 
             onChange={(e) => onUpdateDifficulty(item.id, parseInt(e.target.value, 10))}
-            style={{ width: '60px', accentColor: 'var(--accent)' }}
+            className="compact-slider"
           />
         </div>
-        <div style={{ fontSize: '0.85rem' }}>
-          Revisions: {item.revisionsCount || 0}
-        </div>
+        <span className="card-rev-badge">
+          Rev: {item.revisionsCount || 0}
+        </span>
       </div>
-      <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-        <button className="ping-btn" onClick={handlePing} style={{ flex: 1 }}>
-          <RefreshCw size={16} />
-          Ping (Revise)
+
+      <div className="card-actions">
+        <button className="ping-btn compact-ping-btn" onClick={handlePing} title="I revised/solved this today">
+          <RefreshCw size={13} />
+          <span>Ping</span>
         </button>
-        <button className="ping-btn" onClick={handleDelete} style={{ background: 'rgba(255, 68, 68, 0.1)', color: '#ff4444', border: '1px solid rgba(255, 68, 68, 0.2)', padding: '8px' }} title="Delete question">
-          <Trash2 size={16} />
+        <button 
+          className="compact-delete-btn" 
+          onClick={handleDelete} 
+          title="Delete question"
+        >
+          <Trash2 size={13} />
         </button>
       </div>
     </div>

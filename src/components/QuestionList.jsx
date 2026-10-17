@@ -5,7 +5,15 @@ import { getFreshnessCategory, CategoryDetails } from '../utils/freshness';
 import { ChevronDown, ChevronRight, Search, Sparkles } from 'lucide-react';
 
 export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }) => {
-  const [collapsed, setCollapsed] = useState({});
+  const categoriesOrder = ['ancient', 'stale', 'slipping', 'fresh'];
+  
+  // Requirement 1: By default collapse all categories
+  const [collapsed, setCollapsed] = useState({
+    ancient: true,
+    stale: true,
+    slipping: true,
+    fresh: true
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [showRecommendationModal, setShowRecommendationModal] = useState(false);
 
@@ -16,6 +24,8 @@ export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }
       </div>
     );
   }
+
+  const isSearching = searchQuery.trim().length > 0;
 
   const filteredQuestions = questions.filter(q => 
     q.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -42,8 +52,6 @@ export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }
     grouped[k].sort(sortByOldest);
   });
 
-  const categoriesOrder = ['ancient', 'stale', 'slipping', 'fresh'];
-
   const toggleCollapse = (catKey) => {
     setCollapsed(prev => ({
       ...prev,
@@ -51,27 +59,53 @@ export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }
     }));
   };
 
+  const allCollapsed = categoriesOrder.every(cat => !!collapsed[cat]);
+
+  const toggleAll = () => {
+    const nextState = !allCollapsed;
+    setCollapsed({
+      ancient: nextState,
+      stale: nextState,
+      slipping: nextState,
+      fresh: nextState
+    });
+  };
+
   return (
-    <div>
-      <div className="flex-between" style={{ marginBottom: '24px', gap: '16px' }}>
-        <div style={{ position: 'relative', flex: 1 }}>
-          <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }}>
-            <Search size={18} />
+    <div className="question-list-container">
+      <div className="list-toolbar flex-between">
+        <div className="search-input-wrapper">
+          <div className="search-icon-holder">
+            <Search size={16} />
           </div>
           <input
             type="text"
-            placeholder="Search tracked questions..."
+            placeholder="Search tracked questions by title or id..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: '40px', width: '100%', marginBottom: 0 }}
+            className="search-input"
           />
         </div>
-        <button 
-          onClick={() => setShowRecommendationModal(true)}
-          style={{ background: 'var(--accent)', color: '#000', display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', whiteSpace: 'nowrap' }}
-        >
-          <Sparkles size={18} /> What should I solve?
-        </button>
+
+        <div className="toolbar-actions">
+          <button 
+            type="button"
+            onClick={toggleAll}
+            className="toggle-all-btn"
+            title={allCollapsed ? "Expand all categories" : "Collapse all categories"}
+          >
+            {allCollapsed ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+            <span>{allCollapsed ? "Expand All" : "Collapse All"}</span>
+          </button>
+
+          <button 
+            onClick={() => setShowRecommendationModal(true)}
+            className="recommend-btn"
+          >
+            <Sparkles size={16} />
+            <span>What should I solve?</span>
+          </button>
+        </div>
       </div>
 
       {showRecommendationModal && (
@@ -85,7 +119,7 @@ export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }
       )}
 
       {filteredQuestions.length === 0 && searchQuery && (
-        <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: 20 }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: 24, padding: '24px 0' }}>
           No questions match "{searchQuery}"
         </div>
       )}
@@ -95,22 +129,36 @@ export const QuestionList = ({ questions, onPing, onDelete, onUpdateDifficulty }
         if (items.length === 0) return null;
         
         const details = CategoryDetails[catKey];
-        const isCollapsed = collapsed[catKey];
+        // Auto-expand if user is actively searching, otherwise respect collapsed state
+        const isCollapsed = isSearching ? false : !!collapsed[catKey];
 
         return (
           <div key={catKey} className="category-section">
             <div 
-              className="category-header" 
+              className={`category-header ${isCollapsed ? 'is-collapsed' : 'is-expanded'}`}
               onClick={() => toggleCollapse(catKey)}
-              style={{ cursor: 'pointer' }}
-              title={isCollapsed ? "Expand category" : "Collapse category"}
+              title={isCollapsed ? "Click to expand" : "Click to collapse"}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleCollapse(catKey);
+                }
+              }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', color: details.color }}>
-                {isCollapsed ? <ChevronRight size={24} /> : <ChevronDown size={24} />}
+              <div className="category-header-left">
+                <div className="category-chevron" style={{ color: details.color }}>
+                  {isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+                </div>
+                <h2 className="category-title" style={{ color: details.color }}>{details.label}</h2>
+                <span className="category-count">{items.length}</span>
               </div>
-              <h2 className="category-title" style={{ color: details.color, margin: 0 }}>{details.label}</h2>
-              <span className="category-count">{items.length}</span>
+              <span className="category-status-hint">
+                {isCollapsed ? 'Click to expand' : 'Click to collapse'}
+              </span>
             </div>
+
             {!isCollapsed && (
               <div className="grid">
                 {items.map(item => (

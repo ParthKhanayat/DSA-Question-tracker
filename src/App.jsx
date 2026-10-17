@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { QuestionInput } from './components/QuestionInput';
 import { QuestionList } from './components/QuestionList';
+import { LeetCodeProgress } from './components/LeetCodeProgress';
 import { Auth } from './components/Auth';
 import { supabase } from './supabaseClient';
 import { LogOut } from 'lucide-react';
@@ -175,17 +176,25 @@ function App() {
   return (
     <div className="app-container">
       <header className="header">
-        <div style={{ position: 'absolute', top: 20, right: 20 }}>
-          <button onClick={handleLogout} className="ping-btn" style={{ padding: '8px 12px' }}>
-            <LogOut size={16} /> Logout
-          </button>
+        <div className="header-info">
+          <h1>DSA Tracker</h1>
+          <p>Log your LeetCode journey, track your revisions, and never forget a pattern.</p>
         </div>
-        <h1>DSA Tracker</h1>
-        <p>Log your LeetCode journey, track your revisions, and never forget a pattern.</p>
+        <button onClick={handleLogout} className="logout-btn">
+          <LogOut size={16} />
+          <span>Logout</span>
+        </button>
       </header>
 
       <main>
-        <QuestionInput onAdd={handleAddQuestion} />
+        <div className="top-dashboard">
+          <div className="top-dashboard-input">
+            <QuestionInput onAdd={handleAddQuestion} />
+          </div>
+          <div className="top-dashboard-meter">
+            <LeetCodeProgress questions={questions} />
+          </div>
+        </div>
         
         <QuestionList 
           questions={questions} 
