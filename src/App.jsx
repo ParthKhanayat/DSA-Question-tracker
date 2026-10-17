@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { QuestionInput } from './components/QuestionInput';
 import { QuestionList } from './components/QuestionList';
 import { LeetCodeProgress } from './components/LeetCodeProgress';
+import { CelebrationOverlay } from './components/CelebrationOverlay';
 import { Auth } from './components/Auth';
 import { supabase } from './supabaseClient';
 import { LogOut } from 'lucide-react';
@@ -11,6 +12,7 @@ function App() {
   const [session, setSession] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [celebration, setCelebration] = useState(null);
   const currentUserIdRef = useRef(null);
 
   const fetchQuestions = useCallback(async (userId) => {
@@ -86,6 +88,9 @@ function App() {
   }, [fetchQuestions]);
 
   const handleAddQuestion = async (newQuestion) => {
+    // Trigger festive fireworks animation
+    setCelebration({ type: 'fireworks', id: Date.now() });
+
     // Optimistic UI update
     setQuestions(prev => {
       const exists = prev.findIndex(q => q.id === newQuestion.id || q.name.toLowerCase() === newQuestion.name.toLowerCase());
@@ -132,6 +137,9 @@ function App() {
   };
 
   const handlePingQuestion = async (id, newDateStr, currentRevisions) => {
+    // Trigger joyful smiley animation
+    setCelebration({ type: 'smiley', id: Date.now() });
+
     // Optimistic update
     const newRevisions = currentRevisions + 1;
     setQuestions(prev => prev.map(q => {
@@ -196,36 +204,39 @@ function App() {
   }
 
   return (
-    <div className="app-container">
-      <header className="header">
-        <div className="header-info">
-          <h1>DSA Tracker</h1>
-          <p>Log your LeetCode journey, track your revisions, and never forget a pattern.</p>
-        </div>
-        <button onClick={handleLogout} className="logout-btn">
-          <LogOut size={16} />
-          <span>Logout</span>
-        </button>
-      </header>
+    <>
+      <CelebrationOverlay trigger={celebration} />
+      <div className="app-container">
+        <header className="header">
+          <div className="header-info">
+            <h1>DSA Tracker</h1>
+            <p>Log your LeetCode journey, track your revisions, and never forget a pattern.</p>
+          </div>
+          <button onClick={handleLogout} className="logout-btn">
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
+        </header>
 
-      <main>
-        <div className="top-dashboard">
-          <div className="top-dashboard-input">
-            <QuestionInput onAdd={handleAddQuestion} />
+        <main>
+          <div className="top-dashboard">
+            <div className="top-dashboard-input">
+              <QuestionInput onAdd={handleAddQuestion} />
+            </div>
+            <div className="top-dashboard-meter">
+              <LeetCodeProgress questions={questions} />
+            </div>
           </div>
-          <div className="top-dashboard-meter">
-            <LeetCodeProgress questions={questions} />
-          </div>
-        </div>
-        
-        <QuestionList 
-          questions={questions} 
-          onPing={handlePingQuestion} 
-          onDelete={handleDeleteQuestion}
-          onUpdateDifficulty={handleUpdateDifficulty}
-        />
-      </main>
-    </div>
+          
+          <QuestionList 
+            questions={questions} 
+            onPing={handlePingQuestion} 
+            onDelete={handleDeleteQuestion}
+            onUpdateDifficulty={handleUpdateDifficulty}
+          />
+        </main>
+      </div>
+    </>
   );
 }
 

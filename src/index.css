@@ -46,6 +46,17 @@ body {
   border-radius: 14px;
 }
 
+/* Celebration Overlay - Takes no space, floats on top of everything without blocking clicks */
+.celebration-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999999;
+}
+
 /* App Layout - Left aligned */
 .app-container {
   max-width: 1680px;
