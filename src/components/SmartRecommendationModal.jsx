@@ -7,10 +7,16 @@ export const SmartRecommendationModal = ({ questions, onClose, onPing, onDelete,
   if (!questions || questions.length === 0) {
     return (
       <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content glass-panel" onClick={e => e.stopPropagation()}>
-          <button className="close-btn" onClick={onClose}><X size={20} /></button>
-          <h2><Sparkles size={24} style={{ color: 'var(--accent)', verticalAlign: 'middle', marginRight: '8px' }}/> Recommendation</h2>
-          <p>No questions available to recommend yet. Add some questions first!</p>
+        <div className="rainbow-border-modal" onClick={e => e.stopPropagation()}>
+          <div className="modal-inner">
+            <button className="close-btn" onClick={onClose} title="Close">
+              <X size={20} />
+            </button>
+            <h2 style={{ marginBottom: '16px', marginTop: 0, color: '#ffffff' }}>
+              <Sparkles size={24} style={{ color: 'var(--accent)', verticalAlign: 'middle', marginRight: '8px' }}/> Recommendation
+            </h2>
+            <p style={{ color: 'var(--text-secondary)' }}>No questions available to recommend yet. Add some questions first!</p>
+          </div>
         </div>
       </div>
     );
@@ -33,38 +39,30 @@ export const SmartRecommendationModal = ({ questions, onClose, onPing, onDelete,
   const recommendedQuestion = scoredQuestions[0];
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.7)', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', zIndex: 1000
-    }}>
-      <div className="modal-content glass-panel" onClick={e => e.stopPropagation()} style={{
-        position: 'relative', width: '90%', maxWidth: '500px', padding: '24px'
-      }}>
-        <button className="close-btn" onClick={onClose} style={{ 
-          position: 'absolute', top: '16px', right: '16px', 
-          background: 'transparent', border: 'none', color: 'var(--text)', 
-          cursor: 'pointer' 
-        }}>
-          <X size={20} />
-        </button>
-        <h2 style={{ marginBottom: '16px', marginTop: 0 }}>
-          <Sparkles size={24} style={{ color: 'var(--accent)', verticalAlign: 'middle', marginRight: '8px' }}/> 
-          Smart Recommendation
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.9rem', lineHeight: '1.5' }}>
-          Based on how long it's been, your personal difficulty rating, and how many times you've revised this, we think you should tackle this next:
-        </p>
-        
-        <QuestionCard 
-          item={recommendedQuestion} 
-          onPing={(id, dateStr, revs) => {
-            onPing(id, dateStr, revs);
-            onClose(); // Optional: close modal on ping
-          }} 
-          onDelete={onDelete} 
-          onUpdateDifficulty={onUpdateDifficulty} 
-        />
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="rainbow-border-modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-inner">
+          <button className="close-btn" onClick={onClose} title="Close">
+            <X size={20} />
+          </button>
+          <h2 style={{ marginBottom: '14px', marginTop: 0, color: '#ffffff' }}>
+            <Sparkles size={24} style={{ color: 'var(--accent)', verticalAlign: 'middle', marginRight: '8px' }}/> 
+            Smart Recommendation
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.9rem', lineHeight: '1.5' }}>
+            Based on how long it's been, your personal difficulty rating, and how many times you've revised this, we think you should tackle this next:
+          </p>
+          
+          <QuestionCard 
+            item={recommendedQuestion} 
+            onPing={(id, dateStr, revs) => {
+              onPing(id, dateStr, revs);
+              onClose(); // Optional: close modal on ping
+            }} 
+            onDelete={onDelete} 
+            onUpdateDifficulty={onUpdateDifficulty} 
+          />
+        </div>
       </div>
     </div>
   );
